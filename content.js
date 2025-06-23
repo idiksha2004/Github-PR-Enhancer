@@ -1,14 +1,29 @@
 function extractDiffFromPage() {
-  const lines = document.querySelectorAll('.blob-code-addition, .blob-code-deletion');
-  let diff = "";
+  const diffTables = document.querySelectorAll('.js-file-content');
 
-  lines.forEach((line) => {
-    const sign = line.classList.contains('blob-code-addition') ? '+' : '-';
-    diff += sign + ' ' + line.innerText + '\n';
+  let fullDiff = "";
+
+  diffTables.forEach(table => {
+    const fileHeader = table.closest('.file').querySelector('.file-info')?.innerText || "Unknown File";
+    fullDiff += `\n\nFile: ${fileHeader}\n`;
+
+    const addedLines = table.querySelectorAll('.blob-code-addition');
+    const removedLines = table.querySelectorAll('.blob-code-deletion');
+
+    addedLines.forEach(line => {
+      const text = line.innerText.trim();
+      if (text) fullDiff += `+ ${text}\n`;
+    });
+
+    removedLines.forEach(line => {
+      const text = line.innerText.trim();
+      if (text) fullDiff += `- ${text}\n`;
+    });
   });
 
-  return diff.trim();
+  return fullDiff.trim();
 }
+
 
 function injectEnhancerUI() {
   const existing = document.getElementById('ai-pr-enhancer');
@@ -48,7 +63,7 @@ Summarize the purpose of this PR. Highlight what was added, removed, or changed.
 
     output.innerText = "🤖 Sending to GPT...";
 
-    const apiKey = "YOUR_OPENAI_API_KEY_HERE"; // 🔐 Replace this with your actual API key
+    const apiKey = ""; // 🔐 Replace this with your actual API key
 
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -58,7 +73,7 @@ Summarize the purpose of this PR. Highlight what was added, removed, or changed.
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-4o",
+          model: "gpt-3.5-turbo",
           messages: [
             { role: "system", content: "You are a helpful code reviewer." },
             { role: "user", content: prompt }
@@ -68,6 +83,8 @@ Summarize the purpose of this PR. Highlight what was added, removed, or changed.
       });
 
       const data = await response.json();
+      console.log("Full response from OpenAI:", data);
+
       const summary = data.choices?.[0]?.message?.content || "❌ No response from API.";
       output.innerText = "🧠 Summary:\n\n" + summary;
     } catch (err) {
