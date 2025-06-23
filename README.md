@@ -138,5 +138,5 @@ PRs are welcome! Feel free to fork and improve:
 
 ## ✉️ Contact
 
-Built with 💻 by [Your Name](https://github.com/your-username)
-Follow updates: [@yourhandle](https://twitter.com/yourhandle)
+Built with 💻 by [Your Name](https://github.com/idiksha2004)
+
