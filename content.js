@@ -1,10 +1,9 @@
 function extractDiffFromPage() {
   const diffTables = document.querySelectorAll('.js-file-content');
-
   let fullDiff = "";
 
   diffTables.forEach(table => {
-    const fileHeader = table.closest('.file').querySelector('.file-info')?.innerText || "Unknown File";
+    const fileHeader = table.closest('.file')?.querySelector('.file-info')?.innerText || "Unknown File";
     fullDiff += `\n\nFile: ${fileHeader}\n`;
 
     const addedLines = table.querySelectorAll('.blob-code-addition');
@@ -24,7 +23,6 @@ function extractDiffFromPage() {
   return fullDiff.trim();
 }
 
-
 function injectEnhancerUI() {
   const existing = document.getElementById('ai-pr-enhancer');
   if (existing) return;
@@ -41,6 +39,7 @@ function injectEnhancerUI() {
   const output = document.createElement('div');
   output.id = "ai-summary-output";
   output.style.marginTop = "15px";
+  output.style.whiteSpace = "pre-wrap";
 
   button.onclick = async () => {
     output.innerText = "⏳ Extracting diff...";
@@ -52,43 +51,32 @@ function injectEnhancerUI() {
     }
 
     const prompt = `
-You're a senior software engineer reviewing a pull request.
-
-Here is the code diff from a GitHub PR:
+You are a helpful code reviewer. Summarize this GitHub pull request diff:
 
 ${diff}
 
-Summarize the purpose of this PR. Highlight what was added, removed, or changed. Keep it clear and technical, under 200 words.
-`;
+Highlight changes made, the purpose, and any possible issues or improvements. Keep the response under 200 words.
+    `.trim();
 
-    output.innerText = "🤖 Sending to GPT...";
-
-    const apiKey = ""; // 🔐 Replace this with your actual API key
+    output.innerText = "🤖 Asking local LLM (phi)...";
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("http://localhost:11434/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: "You are a helpful code reviewer." },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.5
+          model: "phi",
+          prompt: prompt,
+          stream: false
         })
       });
 
       const data = await response.json();
-      console.log("Full response from OpenAI:", data);
-
-      const summary = data.choices?.[0]?.message?.content || "❌ No response from API.";
+      const summary = data.response || "❌ No response from local LLM.";
       output.innerText = "🧠 Summary:\n\n" + summary;
+
     } catch (err) {
-      output.innerText = "🚨 Error calling GPT API:\n" + err.message;
+      output.innerText = "🚨 Error contacting local LLM:\n" + err.message;
     }
   };
 
