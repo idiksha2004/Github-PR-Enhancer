@@ -2,11 +2,12 @@
   "manifest_version": 3,
   "name": "GitHub PR Enhancer",
   "version": "1.0",
-  "description": "Adds AI summaries, risk insights, and checklists to GitHub PRs",
+  "description": "AI-powered GitHub PR summarizer using local LLM",
   "permissions": ["scripting", "activeTab", "storage"],
-  "host_permissions": [
-    "https://github.com/*"
-  ],
+  "host_permissions": ["http://localhost:11434/"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://github.com/*/pull/*"],
