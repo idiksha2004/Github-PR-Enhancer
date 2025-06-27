@@ -53,22 +53,24 @@ function injectEnhancerUI() {
 
   button.onclick = async () => {
     output.innerText = "⏳ Extracting diff...";
-    const diff = extractDiffFromPage();
+    const fullDiff = extractDiffFromPage();
 
-    if (!diff) {
+    if (!fullDiff) {
       output.innerText = "⚠️ No code diff found.";
       return;
     }
 
+    const limitedDiff = fullDiff.slice(0, 2000); // Truncate to 2000 characters
+
     const prompt = `
 You are a helpful code reviewer. Summarize this GitHub pull request diff:
 
-${diff}
+${limitedDiff}
 
-Highlight changes made, the purpose, and any possible issues or improvements. Keep the response under 200 words.
+Highlight the purpose and any important changes in under 150 words.
     `.trim();
 
-    output.innerText = "🤖 Asking local LLM (phi)...";
+    output.innerText = "🤖 Asking local LLM...";
 
     chrome.runtime.sendMessage({
       type: "summarizeWithLLM",
