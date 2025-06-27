@@ -1,0 +1,24 @@
+{
+  "name": "github-pr-enhancer",
+  "version": "1.0.0",
+  "description": "A Chrome extension that uses AI to **summarize GitHub pull requests**, estimate **risk levels**, and provide **smart checklists** — all injected directly into the PR UI. Powered by GPT or open-source models like Mistral.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idiksha2004/Github-PR-Enhancer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idiksha2004/Github-PR-Enhancer/issues"
+  },
+  "homepage": "https://github.com/idiksha2004/Github-PR-Enhancer#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
+  }
+}
