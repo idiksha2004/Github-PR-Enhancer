@@ -1,45 +1,35 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "summarizeWithLLM") {
-    fetch("http://localhost:1234/ollama", ...)
-, {
+    console.log("📡 Proxy call triggered with:", request.prompt);
+
+    fetch("http://localhost:1234/ollama", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "phi", // or tinyllama, mistral, etc
+        model: "phi",
         prompt: request.prompt,
         stream: false
       })
     })
-      .then(res => {
-        console.log("✅ LLM status:", res.status);
-        return res.text(); // even if it's empty or broken
-      })
-      .then(raw => {
-        console.log("🔍 Raw Ollama response:", raw);
+    .then(res => res.text())
+    .then(raw => {
+      console.log("📩 Raw response from proxy:", raw);
 
-        if (!raw) {
-          sendResponse({ error: "Ollama returned an empty response." });
-          return;
-        }
+      if (!raw) return sendResponse({ error: "Ollama returned an empty response." });
 
-        let data;
-        try {
-          data = JSON.parse(raw);
-        } catch (err) {
-          sendResponse({
-            error: "Failed to parse LLM response: " + err.message + "\nRaw: " + raw
-          });
-          return;
-        }
-
-        const summary =
-          data.response || data.capital || data.summary || "(no usable field in response)";
+      let data;
+      try {
+        data = JSON.parse(raw);
+        const summary = data.response || data.capital || data.summary || "(No usable field in response)";
         sendResponse({ summary });
-      })
-      .catch(err => {
-        sendResponse({ error: "Fetch error: " + err.message });
-      });
+      } catch (err) {
+        sendResponse({ error: "Failed to parse response: " + err.message + "\nRaw: " + raw });
+      }
+    })
+    .catch(err => {
+      sendResponse({ error: "Proxy fetch error: " + err.message });
+    });
 
-    return true;
+    return true; // Required for async sendResponse
   }
 });

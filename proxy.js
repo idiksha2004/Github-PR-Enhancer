@@ -5,14 +5,23 @@ const app = express();
 app.use(express.json());
 
 app.post('/ollama', async (req, res) => {
-  const ollamaResponse = await fetch('http://localhost:11434/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req.body)
-  });
+  console.log("🟡 Proxy received request:", req.body);
 
-  const result = await ollamaResponse.text(); // send raw result back
-  res.send(result);
+  try {
+    const ollamaResponse = await fetch('http://localhost:11434/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+
+    const result = await ollamaResponse.text();
+    console.log("🟢 Ollama raw response:", result);
+
+    res.send(result);
+  } catch (err) {
+    console.error("🔴 Proxy error:", err);
+    res.status(500).send({ error: "Failed to contact Ollama" });
+  }
 });
 
-app.listen(1234, () => console.log("Proxy running at http://localhost:1234"));
+app.listen(1234, () => console.log("✅ Proxy running at http://localhost:1234"));

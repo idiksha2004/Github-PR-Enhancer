@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "name": "GitHub PR Enhancer",
   "version": "1.0",
-  "description": "AI-powered GitHub PR summarizer using local LLM",
+  "description": "Summarize GitHub PRs using a local LLM via Ollama and proxy.",
   "permissions": ["scripting", "activeTab", "storage"],
-  "host_permissions": ["http://localhost:11434/"],
+  "host_permissions": ["http://localhost:1234/"],
   "background": {
     "service_worker": "background.js"
   },
@@ -12,7 +12,8 @@
     {
       "matches": ["https://github.com/*/pull/*"],
       "js": ["content.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
