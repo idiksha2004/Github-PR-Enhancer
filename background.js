@@ -15,21 +15,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     .then(raw => {
       console.log("📩 Raw response from proxy:", raw);
 
-      if (!raw) return sendResponse({ error: "Ollama returned an empty response." });
-
-      let data;
-      try {
-        data = JSON.parse(raw);
-        const summary = data.response || data.capital || data.summary || "(No usable field in response)";
-        sendResponse({ summary });
-      } catch (err) {
-        sendResponse({ error: "Failed to parse response: " + err.message + "\nRaw: " + raw });
+      if (!raw) {
+        sendResponse({ error: "Ollama returned an empty response." });
+        return;
       }
+
+      // ✅ Just send the raw response directly (assuming plain text)
+      sendResponse({ summary: raw });
     })
     .catch(err => {
       sendResponse({ error: "Proxy fetch error: " + err.message });
     });
 
-    return true; // Required for async sendResponse
+    return true; // Keeps sendResponse alive asynchronously
   }
 });

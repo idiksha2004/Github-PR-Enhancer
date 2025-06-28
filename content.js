@@ -54,7 +54,14 @@ function injectEnhancerUI() {
       return;
     }
 
-    const prompt = `Summarize the following GitHub PR diff in 150 words:\n\n${limitedDiff}`;
+    const prompt = `
+You are a helpful code reviewer. Summarize the following GitHub pull request diff:
+
+${limitedDiff}
+
+Write a short summary (1–3 sentences) in plain English. Output only the summary.
+`.trim();
+
     output.innerText = "🤖 Asking local LLM...";
 
     chrome.runtime.sendMessage({
